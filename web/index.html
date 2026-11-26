@@ -1,73 +1,55 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Instalar firmware · ESP32-S3-LCD-1.54 Starter</title>
+  <title>Install ESP32-S3-LCD-1.54 Starter</title>
   <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
   <style>
-    :root { color-scheme: light dark; --accent: #0096ff; }
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; line-height: 1.55; }
-    h1 { margin-bottom: 4px; }
-    .sub { opacity: .7; margin-top: 0; }
-    .card { border: 1px solid #8884; border-radius: 12px; padding: 20px; margin: 24px 0; }
-    .install { text-align: center; }
-    esp-web-install-button button, .btn {
-      background: var(--accent); color: #fff; border: 0; border-radius: 8px;
-      padding: 12px 28px; font-size: 1.1rem; cursor: pointer;
+    :root { color-scheme: light dark; }
+    main { font-family: system-ui, sans-serif; max-width: 38rem; margin: 0 auto; padding: 2rem 1rem; line-height: 1.55; }
+    h1 { line-height: 1.15; }
+    button {
+      background: #045a75; color: #fff; border: 0; border-radius: 6px;
+      padding: .65rem 1.2rem; font: inherit; font-weight: 600; cursor: pointer;
     }
-    .warn { background: #ff980022; border-left: 4px solid #ff9800; padding: 10px 14px; border-radius: 6px; }
-    code { background: #8882; padding: 1px 5px; border-radius: 4px; }
-    small { opacity: .7; }
-    a { color: var(--accent); }
+    button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+    details, footer { border-top: 1px solid #8886; margin-top: 1.5rem; padding-top: 1rem; }
+    summary { cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>ESP32-S3-LCD-1.54 Starter</h1>
-  <p class="sub">Firmware de iniciación para la placa Waveshare ESP32-S3-LCD-1.54</p>
+  <main>
+    <h1>ESP32-S3-LCD-1.54 Starter</h1>
+    <p>Install firmware on the Waveshare ESP32-S3-LCD-1.54.</p>
 
-  <div class="card install">
     <esp-web-install-button manifest="manifest.json">
-      <button slot="activate">Conectar e instalar</button>
-      <div slot="unsupported" class="warn">
-        Tu navegador no permite acceder al USB. Usa <b>Chrome</b>, <b>Edge</b> u <b>Opera</b> en un ordenador
-        (Firefox, Safari y móviles no son compatibles).
-      </div>
-      <div slot="not-allowed" class="warn">
-        La página debe abrirse por <b>https</b> para poder usar el USB.
-      </div>
+      <button type="button" slot="activate">Connect</button>
+      <span slot="unsupported">Open this page in desktop Chrome or Edge.</span>
+      <span slot="not-allowed">Open the HTTPS installer directly to allow serial access.</span>
     </esp-web-install-button>
-    <p><small>Versión __VERSION__</small></p>
-  </div>
 
-  <h2>Cómo instalar</h2>
-  <ol>
-    <li>Conecta la placa al ordenador con un cable USB-C <b>de datos</b> (algunos cables solo cargan).</li>
-    <li>Pulsa <b>Conectar e instalar</b> y elige el puerto de la placa
-      (suele llamarse <i>USB JTAG/serial debug unit</i> o <code>ttyACM0</code>).</li>
-    <li>Elige <b>Instalar</b>. Puedes marcar <i>borrar el dispositivo</i> si quieres empezar de cero.</li>
-    <li>Espera alrededor de un minuto. Al terminar, la placa se reinicia con el nuevo firmware.</li>
-  </ol>
-  <p>Después de instalarlo, el mismo botón te deja abrir los <b>registros</b> (monitor serie) para ver
-     los mensajes <code>ESP_LOGI</code> que escribe el programa.</p>
+    <ol>
+      <li>Plug the board into your computer with a USB-C data cable.</li>
+      <li>Choose <strong>Connect</strong> and select the board's serial port.</li>
+      <li>Choose <strong>Install</strong> and wait for it to finish.</li>
+    </ol>
+    <p>Erasing the device is optional and deletes data saved in flash.</p>
 
-  <h2>Si no conecta</h2>
-  <ul>
-    <li><b>Modo descarga:</b> desconecta el USB, mantén pulsado <b>BOOT</b>, conecta el USB y suelta <b>BOOT</b>.
-      Vuelve a intentarlo. Al terminar, desconecta y conecta el USB para arrancar.</li>
-    <li><b>Linux:</b> tu usuario debe tener permiso sobre el puerto:
-      <code>sudo usermod -aG dialout $USER</code> y vuelve a iniciar sesión.</li>
-    <li>Cierra cualquier otro programa que esté usando el puerto (monitor serie, Arduino IDE, VS Code…).</li>
-  </ul>
+    <details>
+      <summary>Board won't connect?</summary>
+      <ul>
+        <li>Close any serial monitor or other app using the port.</li>
+        <li>On Linux, check that your user has permission to open the serial port.</li>
+        <li>Unplug USB, hold <strong>BOOT</strong>, plug USB back in, then release <strong>BOOT</strong> and try again. After installing, reconnect USB without holding <strong>BOOT</strong>.</li>
+      </ul>
+    </details>
 
-  <h2>Qué incluye</h2>
-  <p>Menú con los 3 botones, enlaces de ayuda en QR y pruebas de pantalla, botones, batería,
-     acelerómetro/giroscopio, altavoz, microSD y bus I2C, además de una app plantilla para empezar a programar.</p>
-
-  <h2>Programar la placa</h2>
-  <p>El código fuente y las instrucciones para compilarlo con ESP-IDF están en
-     <a href="https://github.com/__REPO__">github.com/__REPO__</a>.
-     También puedes <a href="firmware/firmware.bin" download>descargar el binario</a> (dirección 0x0)
-     para grabarlo con <code>esptool</code>.</p>
+    <footer>
+      <small>Version __VERSION__</small><br>
+      <a href="https://github.com/__REPO__">Source and build guide</a><br>
+      <a href="firmware/firmware.bin" download>Download the merged binary</a> (flash at <code>0x0</code>)
+    </footer>
+  </main>
 </body>
 </html>
