@@ -16,13 +16,14 @@ La página se genera automáticamente con GitHub Actions en cada cambio de `main
 
 ## Controles
 
-La placa tiene 3 botones. En todo el firmware se usan igual:
+La placa tiene 3 botones; en la placa están en este orden: `BOOT`, `PWR`, `+`.
+En todo el firmware se usan igual:
 
 | Botón  | Uso                               |
 |--------|-----------------------------------|
-| `+`    | siguiente / bajar / cambiar       |
-| `PWR`  | aceptar / acción                  |
 | `BOOT` | volver atrás (en el menú: subir)  |
+| `PWR`  | aceptar / acción                  |
+| `+`    | siguiente / bajar / cambiar       |
 
 Con batería, mantén `PWR` pulsado para encender la placa.
 
@@ -156,7 +157,7 @@ La pantalla mide 240x240. El punto (0,0) está arriba a la izquierda.
 | Elemento | GPIO |
 |----------|------|
 | Pantalla ST7789 (SPI) | SCLK 38, MOSI 39, CS 21, DC 45, RST 40, retroiluminación 46 |
-| Botones (activos a nivel bajo) | BOOT 0, `+` 4, PWR 5 |
+| Botones (activos a nivel bajo; orden físico BOOT, PWR, `+`) | BOOT 0, PWR 5, `+` 4 |
 | Batería | mantener encendido 2, ADC (tensión/3) 1, cargando 3 (0 = sí) |
 | I2C (IMU QMI8658 0x6B, ES8311 0x18, ES7210 0x40) | SDA 42, SCL 41 |
 | Audio I2S | MCLK 8, BCLK 9, WS 10, DIN 11, DOUT 12, amplificador 7 |

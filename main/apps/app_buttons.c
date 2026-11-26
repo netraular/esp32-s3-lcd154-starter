@@ -49,8 +49,8 @@ void app_buttons(void)
 
         display_clear(COLOR_BLACK);
         display_header("Botones");
-        // Una caja por botón, en el orden físico de la placa
-        static const button_id_t order[BTN_COUNT] = {BTN_BOOT, BTN_PLUS, BTN_PWR};
+        // Una caja por botón, en el orden físico de la placa: BOOT, PWR, +
+        static const button_id_t order[BTN_COUNT] = {BTN_BOOT, BTN_PWR, BTN_PLUS};
         static const char *gpio_txt[BTN_COUNT] = {"GPIO0", "GPIO4", "GPIO5"};
         for (int i = 0; i < BTN_COUNT; i++) {
             const button_id_t b = order[i];

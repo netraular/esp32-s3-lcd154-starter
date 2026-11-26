@@ -19,9 +19,10 @@
 #define PIN_LCD_BL       GPIO_NUM_46   // retroiluminación (PWM)
 
 // ---- Botones (activos a nivel BAJO: pulsado = 0) ----
+// Orden físico en la placa: BOOT, PWR, +
 #define PIN_BTN_BOOT     GPIO_NUM_0    // botón "BOOT"
-#define PIN_BTN_PLUS     GPIO_NUM_4    // botón "+"
 #define PIN_BTN_PWR      GPIO_NUM_5    // botón "PWR"
+#define PIN_BTN_PLUS     GPIO_NUM_4    // botón "+"
 
 // ---- Alimentación / batería ----
 #define PIN_BAT_EN       GPIO_NUM_2    // 1 = mantener encendida con batería
