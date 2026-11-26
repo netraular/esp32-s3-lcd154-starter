@@ -124,7 +124,7 @@ void app_imu(void)
         display_circle(cx, cy, 14, COLOR_DARK, false);
         display_rect(cx - r, cy, 2 * r, 1, COLOR_DARK);
         display_rect(cx, cy - r, 1, 2 * r, COLOR_DARK);
-        float tx = -a[0] * r, ty = a[1] * r;
+        float tx = a[0] * r, ty = a[1] * r;
         const float d = sqrtf(tx * tx + ty * ty);
         if (d > r - 8) { tx *= (r - 8) / d; ty *= (r - 8) / d; }
         bx += (tx - bx) * 0.3f;

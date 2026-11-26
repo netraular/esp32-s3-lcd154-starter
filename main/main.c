@@ -19,19 +19,13 @@ static void app_power_off(void)
 {
     display_clear(COLOR_BLACK);
     display_header("Apagar");
-    display_text_center(70, "¡Hasta luego!", 2, COLOR_WHITE);
-    display_text_center(120, "Con batería la placa se apaga.", 1, COLOR_GRAY);
-    display_text_center(134, "Con USB conectado sigue encendida:", 1, COLOR_GRAY);
-    display_text_center(148, "pulsa BOOT para volver.", 1, COLOR_GRAY);
-    display_text_center(180, "Para encender: mantén PWR.", 1, COLOR_GRAY);
+    display_text_center(80, "¡Hasta luego!", 2, COLOR_WHITE);
+    display_text_center(130, "Para encender de nuevo:", 1, COLOR_GRAY);
+    display_text_center(146, "pulsa PWR", 2, COLOR_YELLOW);
     display_flush();
     vTaskDelay(pdMS_TO_TICKS(1500));
-    board_power_off();
-
-    button_event_t e;
-    while (!(buttons_get_event(&e, portMAX_DELAY) && e.type == BTN_EVENT_CLICK && e.button == BTN_BOOT)) {
-    }
-    board_power_hold();
+    display_sleep();
+    board_power_off();   // no vuelve
 }
 
 // Opciones del menú principal. ¡Añade aquí las tuyas!

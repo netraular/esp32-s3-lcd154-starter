@@ -75,6 +75,13 @@ void display_set_brightness(int percent)
 
 int display_get_brightness(void) { return s_brightness; }
 
+void display_sleep(void)
+{
+    ledc_stop(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);   // retroiluminación a 0
+    esp_lcd_panel_disp_on_off(s_panel, false);
+    esp_lcd_panel_disp_sleep(s_panel, true);
+}
+
 void display_init(void)
 {
     s_flush_done = xSemaphoreCreateBinary();

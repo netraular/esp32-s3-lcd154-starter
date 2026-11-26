@@ -41,7 +41,7 @@ Con batería, mantén `PWR` pulsado para encender la placa.
 | Sonido        | Toca una escala por el altavoz y cambia el volumen                        |
 | Tarjeta SD    | Monta la microSD, enseña su tamaño y los ficheros, y prueba a escribir    |
 | Escáner I2C   | Lista los chips del bus I2C (sirve también para tus propios sensores)     |
-| Apagar        | Corta la batería (con el USB conectado la placa sigue encendida)          |
+| Apagar        | Apaga la pantalla y la placa; se vuelve a encender con `PWR`               |
 
 ## Instalar ESP-IDF
 

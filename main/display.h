@@ -41,6 +41,9 @@ void display_init(void);
 /** Envía el lienzo a la pantalla (espera a que termine). */
 void display_flush(void);
 
+/** Apaga la retroiluminación y pone el controlador de la pantalla en reposo. */
+void display_sleep(void);
+
 /** Brillo de la retroiluminación, 0..100 %. */
 void display_set_brightness(int percent);
 int  display_get_brightness(void);

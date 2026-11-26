@@ -55,8 +55,14 @@
 /** Mantiene la placa encendida cuando funciona con batería. Llamar lo primero. */
 void board_power_hold(void);
 
-/** Corta la alimentación de batería (con USB conectado la placa sigue encendida). */
-void board_power_off(void);
+/**
+ * Apaga la placa. No vuelve.
+ * Primero baja BAT_EN para cortar la batería. Si la placa sigue encendida
+ * (con USB, o porque el circuito no corta), entra en "deep sleep": el chip
+ * casi no consume y se despierta al pulsar PWR, arrancando desde cero.
+ * Antes de llamarla, apaga la pantalla con display_sleep().
+ */
+void board_power_off(void) __attribute__((noreturn));
 
 /** Bus I2C compartido. Se crea la primera vez que se pide. */
 i2c_master_bus_handle_t board_i2c_bus(void);
