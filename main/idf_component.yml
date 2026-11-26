@@ -1,0 +1,7 @@
+## Componentes externos (se descargan solos desde components.espressif.com)
+dependencies:
+  idf: ">=5.3"
+  # Genera códigos QR
+  espressif/qrcode: "^0.1.0"
+  # Driver del códec de audio ES8311 (altavoz)
+  espressif/esp_codec_dev: "~1.3.1"
