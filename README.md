@@ -22,7 +22,7 @@ On battery power, hold `PWR` to turn the board on.
 
 ## Build and flash from source
 
-Install [ESP-IDF 5.5.1](https://docs.espressif.com/projects/esp-idf/en/v5.5.1/esp32s3/get-started/index.html),
+Install [ESP-IDF 6.1.1](https://docs.espressif.com/projects/esp-idf/en/v6.1.1/esp32s3/get-started/index.html),
 the version used by GitHub Actions. You can also set it up through Espressif's
 ESP-IDF extension for VS Code. In an ESP-IDF terminal, run:
 

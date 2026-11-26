@@ -28,7 +28,7 @@ void board_power_hold(void)
     gpio_hold_dis(PIN_BAT_EN);
     gpio_hold_dis(PIN_LCD_BL);
     gpio_hold_dis(PIN_AUDIO_PA);
-    if (esp_sleep_get_wakeup_cause() != ESP_SLEEP_WAKEUP_UNDEFINED) {
+    if (esp_sleep_get_wakeup_causes() != 0) {
         rtc_gpio_deinit(PIN_BTN_PWR);   // Return PWR to normal GPIO mode.
         ESP_LOGI(TAG, "Woke from PWR");
     }
