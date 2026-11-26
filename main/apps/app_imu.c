@@ -1,9 +1,8 @@
 /*
- * app_imu.c — Acelerómetro y giroscopio QMI8658 por I2C.
+ * QMI8658 accelerometer and gyroscope over I2C.
  *
- * Muestra la aceleración (en g), el giro (en grados/s), la temperatura del
- * chip y un "nivel de burbuja" que se mueve al inclinar la placa.
- * Datasheet: busca "QMI8658" en la página de recursos de Waveshare.
+ * Shows acceleration (g), angular velocity (degrees/s), sensor temperature,
+ * and a bubble level. See the Waveshare resources page for the datasheet.
  */
 #include "apps.h"
 #include "board.h"
@@ -17,18 +16,18 @@
 
 static const char *TAG = "imu";
 
-// Registros del QMI8658
-#define REG_WHO_AM_I 0x00   // debe valer 0x05
+// QMI8658 registers.
+#define REG_WHO_AM_I 0x00   // Expected value: 0x05.
 #define REG_CTRL1    0x02
-#define REG_CTRL2    0x03   // acelerómetro: escala y frecuencia
-#define REG_CTRL3    0x04   // giroscopio: escala y frecuencia
-#define REG_CTRL7    0x08   // activar sensores
+#define REG_CTRL2    0x03   // Accelerometer range and rate.
+#define REG_CTRL3    0x04   // Gyroscope range and rate.
+#define REG_CTRL7    0x08   // Sensor enables.
 #define REG_TEMP_L   0x33
 #define REG_AX_L     0x35
 #define REG_RESET    0x60
 
-#define ACC_LSB_PER_G   8192.0f  // escala ±4 g
-#define GYR_LSB_PER_DPS 64.0f    // escala ±512 °/s
+#define ACC_LSB_PER_G   8192.0f  // +/-4 g range.
+#define GYR_LSB_PER_DPS 64.0f    // +/-512 degrees/s range.
 
 static i2c_master_dev_handle_t s_dev;
 
@@ -48,7 +47,7 @@ static bool imu_start(void)
     i2c_master_bus_handle_t bus = board_i2c_bus();
     uint8_t addr = I2C_ADDR_QMI8658;
     if (i2c_master_probe(bus, addr, 100) != ESP_OK) {
-        addr = 0x6A;  // dirección alternativa según el pin SA0
+        addr = 0x6A;  // Alternate address selected by SA0.
         if (i2c_master_probe(bus, addr, 100) != ESP_OK) return false;
     }
     const i2c_device_config_t dev_cfg = {
@@ -60,15 +59,15 @@ static bool imu_start(void)
 
     uint8_t who = 0;
     read_regs(REG_WHO_AM_I, &who, 1);
-    ESP_LOGI(TAG, "QMI8658 en 0x%02X, WHO_AM_I = 0x%02X", addr, who);
+    ESP_LOGI(TAG, "QMI8658 at 0x%02X, WHO_AM_I = 0x%02X", addr, who);
     if (who != 0x05) return false;
 
-    write_reg(REG_RESET, 0xB0);           // reinicio por software
+    write_reg(REG_RESET, 0xB0);           // Software reset.
     vTaskDelay(pdMS_TO_TICKS(20));
-    write_reg(REG_CTRL1, 0x40);           // autoincremento de dirección, little-endian
-    write_reg(REG_CTRL2, 0x15);           // ±4 g, 250 Hz
-    write_reg(REG_CTRL3, 0x55);           // ±512 °/s, 250 Hz
-    write_reg(REG_CTRL7, 0x03);           // activar acelerómetro + giroscopio
+    write_reg(REG_CTRL1, 0x40);           // Address auto-increment, little-endian.
+    write_reg(REG_CTRL2, 0x15);           // +/-4 g, 250 Hz.
+    write_reg(REG_CTRL3, 0x55);           // +/-512 degrees/s, 250 Hz.
+    write_reg(REG_CTRL7, 0x03);           // Enable accelerometer and gyroscope.
     vTaskDelay(pdMS_TO_TICKS(50));
     return true;
 }
@@ -76,7 +75,7 @@ static bool imu_start(void)
 static void imu_stop(void)
 {
     if (s_dev) {
-        write_reg(REG_CTRL7, 0x00);       // apagar sensores
+        write_reg(REG_CTRL7, 0x00);       // Disable both sensors.
         i2c_master_bus_rm_device(s_dev);
         s_dev = NULL;
     }
@@ -87,9 +86,9 @@ void app_imu(void)
     if (!imu_start()) {
         imu_stop();
         display_clear(COLOR_BLACK);
-        display_header("Movimiento");
-        display_text_center(100, "No se encuentra el QMI8658", 1, COLOR_RED);
-        display_footer("BOOT volver");
+        display_header("Motion");
+        display_text_center(100, "QMI8658 not found", 1, COLOR_RED);
+        display_footer("BOOT back");
         display_flush();
         button_event_t e;
         while (!(buttons_get_event(&e, portMAX_DELAY) && e.type == BTN_EVENT_CLICK && e.button == BTN_BOOT)) {
@@ -97,7 +96,7 @@ void app_imu(void)
         return;
     }
 
-    float bx = 0, by = 0;  // posición suavizada de la burbuja
+    float bx = 0, by = 0;  // Smoothed bubble position.
     for (;;) {
         button_event_t e;
         if (buttons_get_event(&e, 0) && e.type == BTN_EVENT_CLICK && e.button == BTN_BOOT) break;
@@ -116,9 +115,9 @@ void app_imu(void)
         const float total = sqrtf(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
 
         display_clear(COLOR_BLACK);
-        display_header("Movimiento");
+        display_header("Motion");
 
-        // Nivel de burbuja
+        // Bubble level.
         const int cx = 64, cy = 110, r = 52;
         display_circle(cx, cy, r, COLOR_GRAY, false);
         display_circle(cx, cy, 14, COLOR_DARK, false);
@@ -132,22 +131,22 @@ void app_imu(void)
         const bool level = fabsf(a[0]) < 0.03f && fabsf(a[1]) < 0.03f;
         display_circle(cx + (int)bx, cy + (int)by, 7, level ? COLOR_GREEN : COLOR_YELLOW, true);
 
-        // Valores numéricos
+        // Sensor readings.
         static const char axis[3] = {'X', 'Y', 'Z'};
         int y = 40;
-        display_text(128, y, "Acel. (g)", 1, COLOR_CYAN);
+        display_text(128, y, "Accel. (g)", 1, COLOR_CYAN);
         y += 12;
         for (int i = 0; i < 3; i++, y += 11) display_printf(128, y, 1, COLOR_WHITE, "%c %+6.2f", axis[i], a[i]);
         display_printf(128, y, 1, COLOR_GRAY, "|a| %5.2f", total);
         y += 18;
-        display_text(128, y, "Giro (°/s)", 1, COLOR_CYAN);
+        display_text(128, y, "Gyro (°/s)", 1, COLOR_CYAN);
         y += 12;
         for (int i = 0; i < 3; i++, y += 11) display_printf(128, y, 1, COLOR_WHITE, "%c %+7.1f", axis[i], g[i]);
         y += 7;
         display_printf(128, y, 1, COLOR_ORANGE, "Temp %.1f °C", temp);
 
-        display_text_center(178, level ? "¡Nivelada!" : "Inclina la placa", 2, level ? COLOR_GREEN : COLOR_WHITE);
-        display_footer("BOOT volver");
+        display_text_center(178, level ? "Level!" : "Tilt the board", 2, level ? COLOR_GREEN : COLOR_WHITE);
+        display_footer("BOOT back");
         display_flush();
         vTaskDelay(pdMS_TO_TICKS(30));
     }

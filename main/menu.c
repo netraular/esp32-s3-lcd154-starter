@@ -19,13 +19,13 @@ static void draw(const char *title, const menu_item_t *items, int count, int sel
         }
         display_text(10, y, items[idx].label, 2, idx == sel ? COLOR_YELLOW : COLOR_WHITE);
     }
-    // Indicador de desplazamiento
+    // Scroll indicator.
     if (count > VISIBLE) {
         const int bar_h = (DISPLAY_H - LIST_Y - 16) * VISIBLE / count;
         const int bar_y = LIST_Y + (DISPLAY_H - LIST_Y - 16 - bar_h) * top / (count - VISIBLE);
         display_rect(DISPLAY_W - 3, bar_y, 3, bar_h, COLOR_GRAY);
     }
-    display_footer("+ bajar   PWR entrar   BOOT subir");
+    display_footer("+ down   PWR open   BOOT up");
     display_flush();
 }
 

@@ -1,6 +1,6 @@
 /*
- * Fuente clásica 5x7 (dominio público). Cada carácter son 5 columnas;
- * en cada byte el bit 0 es la fila de arriba.
+ * Classic public-domain 5x7 font. Each glyph uses five columns, with bit 0
+ * at the top of each column.
  */
 #pragma once
 #include <stdint.h>
@@ -41,7 +41,7 @@ static const uint8_t FONT5X7[][5] = {
     {0x00,0x41,0x36,0x08,0x00}, {0x02,0x01,0x02,0x04,0x02},                              // } ~
 };
 
-// Caracteres extra para español (se seleccionan desde UTF-8 en display.c)
+// Additional Latin-1 glyphs selected from UTF-8 in display.c.
 enum { GLYPH_A_ACUTE, GLYPH_E_ACUTE, GLYPH_I_ACUTE, GLYPH_O_ACUTE, GLYPH_U_ACUTE,
        GLYPH_N_TILDE, GLYPH_INV_QUESTION, GLYPH_INV_EXCLAM, GLYPH_DEGREE, GLYPH_COUNT };
 

@@ -1,5 +1,5 @@
 /*
- * app_info.c — Datos del chip: modelo, memoria, MAC, versión de ESP-IDF...
+ * Board details: chip, memory, MAC address, and ESP-IDF version.
  */
 #include "apps.h"
 #include "buttons.h"
@@ -24,13 +24,13 @@ void app_info(void)
 
     for (;;) {
         display_clear(COLOR_BLACK);
-        display_header("Info placa");
+        display_header("Board info");
         const int x = 8, s = 1, c = COLOR_WHITE, k = COLOR_CYAN;
         int y = 34;
         const int dy = 14;
         display_text(x, y, "Chip:", s, k);
         display_printf(x + 66, y, s, c, "ESP32-S3 rev %d.%d", chip.revision / 100, chip.revision % 100); y += dy;
-        display_text(x, y, "Núcleos:", s, k);
+        display_text(x, y, "Cores:", s, k);
         display_printf(x + 66, y, s, c, "%d (240 MHz)", chip.cores); y += dy;
         display_text(x, y, "Radio:", s, k);
         display_printf(x + 66, y, s, c, "%s%s", (chip.features & CHIP_FEATURE_WIFI_BGN) ? "WiFi " : "",
@@ -39,7 +39,7 @@ void app_info(void)
         display_printf(x + 66, y, s, c, "%lu MB", (unsigned long)(flash_size / (1024 * 1024))); y += dy;
         display_text(x, y, "PSRAM:", s, k);
         display_printf(x + 66, y, s, c, "%u MB", (unsigned)(esp_psram_get_size() / (1024 * 1024))); y += dy;
-        display_text(x, y, "RAM libre:", s, k);
+        display_text(x, y, "Free RAM:", s, k);
         display_printf(x + 66, y, s, c, "%u KB int + %u KB ext",
                        (unsigned)(heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024),
                        (unsigned)(heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024)); y += dy;
@@ -49,12 +49,12 @@ void app_info(void)
         display_text(x, y, "ESP-IDF:", s, k);
         display_printf(x + 66, y, s, c, "%s", esp_get_idf_version()); y += dy;
         const unsigned up = (unsigned)(esp_timer_get_time() / 1000000);
-        display_text(x, y, "Encendida:", s, k);
+        display_text(x, y, "Uptime:", s, k);
         display_printf(x + 66, y, s, c, "%02u:%02u:%02u", up / 3600, (up / 60) % 60, up % 60); y += dy + 6;
 
-        display_text(x, y, "Pantalla ST7789 240x240 SPI\nIMU QMI8658, audio ES8311/ES7210\nmicroSD, batería Li-ion 3.7 V",
+        display_text(x, y, "ST7789 240x240 SPI display\nQMI8658 IMU, ES8311/ES7210 audio\nmicroSD, 3.7 V Li-ion battery",
                      s, COLOR_GRAY);
-        display_footer("BOOT volver");
+        display_footer("BOOT back");
         display_flush();
 
         button_event_t e;

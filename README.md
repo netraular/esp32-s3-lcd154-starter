@@ -17,8 +17,8 @@ in download mode, reconnect USB without holding `BOOT` to start the firmware.
 ## Use the board
 
 In the main menu, `BOOT` moves up, `+` moves down, and `PWR` opens the selected
-item. Inside an app, `BOOT` goes back. On battery power, hold `PWR` to turn the
-board on.
+item. Inside an app, `BOOT` goes back (hold it for two seconds in **Buttons**).
+On battery power, hold `PWR` to turn the board on.
 
 ## Build and flash from source
 

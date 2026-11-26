@@ -1,12 +1,10 @@
 /*
- * display.h — Pantalla 240x240 con un "lienzo" en memoria.
+ * Drawing API for a 240x240 display backed by a framebuffer.
  *
- * Forma de uso:
- *   1. Dibuja en el lienzo (display_clear, display_rect, display_text...).
- *      Esto solo cambia la memoria, la pantalla no cambia todavía.
- *   2. Llama a display_flush() para enviar el lienzo completo a la pantalla.
+ * Draw into the framebuffer, then call display_flush() to send the full
+ * frame to the screen.
  *
- * Coordenadas: (0,0) arriba a la izquierda, x hacia la derecha, y hacia abajo.
+ * The origin is at the top left. X increases rightward and Y downward.
  */
 #pragma once
 
@@ -16,7 +14,7 @@
 #define DISPLAY_W 240
 #define DISPLAY_H 240
 
-// Colores RGB565 (5 bits rojo, 6 verde, 5 azul)
+// RGB565 colors: 5 red bits, 6 green bits, 5 blue bits.
 #define RGB565(r, g, b) ((uint16_t)((((r) & 0xF8) << 8) | (((g) & 0xFC) << 3) | ((b) >> 3)))
 #define COLOR_BLACK   RGB565(0, 0, 0)
 #define COLOR_WHITE   RGB565(255, 255, 255)
@@ -31,48 +29,48 @@
 #define COLOR_DARK    RGB565(30, 30, 40)
 #define COLOR_ACCENT  RGB565(0, 150, 255)
 
-// Tamaño de un carácter con escala 1 (fuente 5x7 + 1 px de separación)
+// Unscaled character size (5x7 glyph plus 1 px spacing).
 #define FONT_W 6
 #define FONT_H 8
 
-/** Inicializa SPI, el controlador ST7789 y la retroiluminación. */
+/** Initialize SPI, the ST7789 controller, and the backlight. */
 void display_init(void);
 
-/** Envía el lienzo a la pantalla (espera a que termine). */
+/** Send the framebuffer to the screen and wait for the transfer. */
 void display_flush(void);
 
-/** Apaga la retroiluminación y pone el controlador de la pantalla en reposo. */
+/** Turn off the backlight and put the display controller to sleep. */
 void display_sleep(void);
 
-/** Brillo de la retroiluminación, 0..100 %. */
+/** Backlight brightness, from 0 to 100 percent. */
 void display_set_brightness(int percent);
 int  display_get_brightness(void);
 
-// ---- Dibujo sobre el lienzo ----
+// ---- Framebuffer drawing ----
 void display_clear(uint16_t color);
 void display_pixel(int x, int y, uint16_t color);
-void display_rect(int x, int y, int w, int h, uint16_t color);         // relleno
-void display_frame(int x, int y, int w, int h, uint16_t color);        // solo borde
+void display_rect(int x, int y, int w, int h, uint16_t color);         // Filled.
+void display_frame(int x, int y, int w, int h, uint16_t color);        // Outline only.
 void display_line(int x0, int y0, int x1, int y1, uint16_t color);
 void display_circle(int cx, int cy, int r, uint16_t color, bool filled);
 
 /**
- * Escribe texto (UTF-8; admite á é í ó ú ñ ¿ ¡ °). '\n' salta de línea.
- * scale = 1 -> 6x8 px por carácter (40 columnas), 2 -> 12x16 (20 columnas)...
- * Devuelve la x final.
+ * Draw text and return the final x position. Supports ASCII, selected
+ * Latin-1 glyphs in UTF-8, and '\n' line breaks. At scale 1, each character
+ * takes 6x8 pixels (40 columns); at scale 2, it takes 12x16 (20 columns).
  */
 int display_text(int x, int y, const char *text, int scale, uint16_t color);
 
-/** Como display_text pero centrado horizontalmente en la pantalla. */
+/** Draw text centered horizontally on the screen. */
 void display_text_center(int y, const char *text, int scale, uint16_t color);
 
-/** printf sobre el lienzo. */
+/** Draw printf-formatted text into the framebuffer. */
 int display_printf(int x, int y, int scale, uint16_t color, const char *fmt, ...)
     __attribute__((format(printf, 5, 6)));
 
-/** Ancho en píxeles que ocupará un texto (una sola línea). */
+/** Return the width of a single line of text in pixels. */
 int display_text_width(const char *text, int scale);
 
-/** Barra de título y barra de ayuda inferior con estilo común. */
+/** Draw the common title bar or footer. */
 void display_header(const char *title);
 void display_footer(const char *hint);

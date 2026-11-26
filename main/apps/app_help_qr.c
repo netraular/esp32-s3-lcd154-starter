@@ -1,6 +1,5 @@
 /*
- * app_help_qr.c — Enlaces de ayuda como códigos QR: escanéalos con el móvil.
- * Usa el componente espressif/qrcode para generar el QR.
+ * Help links rendered as QR codes using the espressif/qrcode component.
  */
 #include "apps.h"
 #include "buttons.h"
@@ -16,35 +15,35 @@ typedef struct {
 } help_link_t;
 
 static const help_link_t LINKS[] = {
-    {"Instalador", "Reinstalar este firmware (Chrome)",
+    {"Installer", "Reinstall this firmware (Chrome/Edge)",
      "https://netraular.github.io/esp32-s3-lcd154-starter/"},
-    {"Código",    "Código fuente de este firmware",
+    {"Source",    "Starter firmware source code",
      "https://github.com/netraular/esp32-s3-lcd154-starter"},
-    {"Producto",  "Página de la placa en Waveshare",
+    {"Product",   "Waveshare product page",
      "https://www.waveshare.com/esp32-s3-lcd-1.54.htm"},
-    {"Wiki",      "Documentación y tutoriales",
+    {"Wiki",      "Documentation and tutorials",
      "https://docs.waveshare.com/ESP32-S3-Touch-LCD-1.54"},
-    {"Esquemas",  "Esquema eléctrico y datasheets",
+    {"Schematics", "Schematics and datasheets",
      "https://docs.waveshare.com/ESP32-S3-Touch-LCD-1.54/Resources-And-Documents"},
-    {"Vídeo",     "Vídeo de presentación",
+    {"Video",     "Board introduction video",
      "https://www.youtube.com/watch?v=McWEw64yzAA"},
-    {"Ejemplos",  "Código de ejemplo oficial (GitHub)",
+    {"Examples",  "Official sample code on GitHub",
      "https://github.com/waveshareteam/ESP32-S3-Touch-LCD-1.54"},
-    {"ESP-IDF",   "Instalar ESP-IDF y primeros pasos",
+    {"ESP-IDF",   "Install ESP-IDF and get started",
      "https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/get-started/index.html"},
-    {"API",       "Referencia de la API de ESP-IDF",
+    {"API",       "ESP-IDF API reference",
      "https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-reference/index.html"},
 };
 #define LINK_COUNT ((int)(sizeof(LINKS) / sizeof(LINKS[0])))
 
-#define QR_AREA 150   // tamaño máximo del QR en píxeles
+#define QR_AREA 150   // Maximum QR code size in pixels.
 #define QR_TOP  30
 
-// esp_qrcode_generate() llama a esta función con el QR ya calculado.
+// esp_qrcode_generate() calls this with the generated code.
 static void draw_qr(esp_qrcode_handle_t qr)
 {
     const int size = esp_qrcode_get_size(qr);
-    const int quiet = 2;                               // margen blanco (en módulos)
+    const int quiet = 2;                               // White border in modules.
     int scale = QR_AREA / (size + 2 * quiet);
     if (scale < 1) scale = 1;
     const int px = (size + 2 * quiet) * scale;
@@ -60,7 +59,7 @@ static void draw_qr(esp_qrcode_handle_t qr)
     }
 }
 
-/** Escribe la URL partida en líneas de como mucho 39 caracteres. */
+/** Draw the URL in lines of up to 39 characters. */
 static void draw_wrapped(int y, const char *text, uint16_t color)
 {
     const int max_chars = DISPLAY_W / FONT_W - 1;
@@ -88,12 +87,12 @@ void app_help_qr(void)
         cfg.max_qrcode_version = 10;
         cfg.qrcode_ecc_level = ESP_QRCODE_ECC_MED;
         if (esp_qrcode_generate(&cfg, link->url) != ESP_OK) {
-            display_text_center(90, "Error generando QR", 2, COLOR_RED);
+            display_text_center(90, "QR generation failed", 2, COLOR_RED);
         }
 
         display_text_center(QR_TOP + QR_AREA + 4, link->description, 1, COLOR_YELLOW);
         draw_wrapped(QR_TOP + QR_AREA + 18, link->url, COLOR_GRAY);
-        display_footer("+ siguiente  PWR anterior  BOOT volver");
+        display_footer("+ next   PWR previous   BOOT back");
         display_flush();
 
         button_event_t e;

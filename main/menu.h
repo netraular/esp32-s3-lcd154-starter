@@ -6,7 +6,7 @@ typedef struct {
 } menu_item_t;
 
 /**
- * Muestra una lista desplazable y ejecuta la opción elegida.
- * "+" baja, PWR entra, BOOT sube. No vuelve nunca.
+ * Run the scrollable menu. + moves down, PWR opens an item, and BOOT
+ * moves up. This function does not return.
  */
 void menu_run(const char *title, const menu_item_t *items, int count);

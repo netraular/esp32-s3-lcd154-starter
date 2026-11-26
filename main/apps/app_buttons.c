@@ -1,7 +1,6 @@
 /*
- * app_buttons.c — Prueba de botones: muestra el estado de cada uno en tiempo
- * real, cuenta pulsaciones cortas y largas y enseña el último evento.
- * Para salir: mantén BOOT pulsado 2 segundos.
+ * Shows each button's current state, short and long press counts, and the
+ * latest event. Hold BOOT for two seconds to exit.
  */
 #include "apps.h"
 #include "buttons.h"
@@ -13,10 +12,10 @@
 static const char *event_name(button_event_type_t t)
 {
     switch (t) {
-    case BTN_EVENT_DOWN:  return "DOWN (pulsado)";
-    case BTN_EVENT_UP:    return "UP (soltado)";
-    case BTN_EVENT_CLICK: return "CLICK (corto)";
-    case BTN_EVENT_LONG:  return "LONG (largo)";
+    case BTN_EVENT_DOWN:  return "DOWN (pressed)";
+    case BTN_EVENT_UP:    return "UP (released)";
+    case BTN_EVENT_CLICK: return "CLICK (short)";
+    case BTN_EVENT_LONG:  return "LONG (held)";
     }
     return "?";
 }
@@ -24,7 +23,7 @@ static const char *event_name(button_event_type_t t)
 void app_buttons(void)
 {
     int clicks[BTN_COUNT] = {0}, longs[BTN_COUNT] = {0};
-    char last[48] = "(ninguno)";
+    char last[48] = "(none)";
     int64_t boot_down_since = -1;
 
     for (;;) {
@@ -35,7 +34,7 @@ void app_buttons(void)
             snprintf(last, sizeof(last), "%s: %s", buttons_name(e.button), event_name(e.type));
         }
 
-        // Salida: BOOT mantenido 2 s
+        // Exit after holding BOOT for two seconds.
         const int64_t now = esp_timer_get_time();
         if (buttons_is_down(BTN_BOOT)) {
             if (boot_down_since < 0) boot_down_since = now;
@@ -48,8 +47,8 @@ void app_buttons(void)
         }
 
         display_clear(COLOR_BLACK);
-        display_header("Botones");
-        // Una caja por botón, en el orden físico de la placa: BOOT, PWR, +
+        display_header("Buttons");
+        // One box per button in physical order: BOOT, PWR, +.
         static const button_id_t order[BTN_COUNT] = {BTN_BOOT, BTN_PWR, BTN_PLUS};
         static const char *gpio_txt[BTN_COUNT] = {"GPIO0", "GPIO4", "GPIO5"};
         for (int i = 0; i < BTN_COUNT; i++) {
@@ -64,18 +63,18 @@ void app_buttons(void)
                          down ? COLOR_BLACK : COLOR_GRAY);
             display_text(x + (w - display_text_width(down ? "ON" : "off", 1)) / 2, y + 52, down ? "ON" : "off", 1,
                          down ? COLOR_BLACK : COLOR_GRAY);
-            display_printf(x + 4, y + h + 8, 1, COLOR_WHITE, "cortas %d", clicks[b]);
-            display_printf(x + 4, y + h + 20, 1, COLOR_WHITE, "largas %d", longs[b]);
+            display_printf(x + 4, y + h + 8, 1, COLOR_WHITE, "Short %d", clicks[b]);
+            display_printf(x + 4, y + h + 20, 1, COLOR_WHITE, "Long %d", longs[b]);
         }
-        display_text(8, 150, "Último evento:", 1, COLOR_CYAN);
+        display_text(8, 150, "Last event:", 1, COLOR_CYAN);
         display_text(8, 164, last, 1, COLOR_YELLOW);
-        display_text(8, 186, "Pulsado = nivel 0 (pull-up).", 1, COLOR_GRAY);
-        display_printf(8, 200, 1, COLOR_GRAY, "Largo = más de %d ms.", BUTTON_LONG_MS);
+        display_text(8, 186, "Pressed = low (pull-up).", 1, COLOR_GRAY);
+        display_printf(8, 200, 1, COLOR_GRAY, "Long press = %d ms.", BUTTON_LONG_MS);
         if (boot_down_since >= 0) {
             const int pct = (int)((now - boot_down_since) / 20000);
             display_rect(0, DISPLAY_H - 18, DISPLAY_W * (pct > 100 ? 100 : pct) / 100, 4, COLOR_RED);
         }
-        display_footer("Mantén BOOT 2 s para volver");
+        display_footer("Hold BOOT 2 s to go back");
         display_flush();
         vTaskDelay(pdMS_TO_TICKS(20));
     }

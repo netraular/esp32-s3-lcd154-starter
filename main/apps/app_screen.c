@@ -1,6 +1,6 @@
 /*
- * app_screen.c — Prueba de pantalla: colores puros (para ver píxeles muertos),
- * degradados, rejilla y ajuste de brillo.
+ * Display test: solid colors for spotting dead pixels, gradients, a grid,
+ * font samples, and brightness controls.
  */
 #include "apps.h"
 #include "buttons.h"
@@ -13,15 +13,15 @@ static void solid(uint16_t c, const char *name)
     display_clear(c);
     display_text(4, 4, name, 1, c == COLOR_WHITE ? COLOR_BLACK : COLOR_WHITE);
 }
-static void p_red(void)   { solid(COLOR_RED, "Rojo"); }
-static void p_green(void) { solid(COLOR_GREEN, "Verde"); }
-static void p_blue(void)  { solid(COLOR_BLUE, "Azul"); }
-static void p_white(void) { solid(COLOR_WHITE, "Blanco"); }
-static void p_black(void) { solid(COLOR_BLACK, "Negro"); }
+static void p_red(void)   { solid(COLOR_RED, "Red"); }
+static void p_green(void) { solid(COLOR_GREEN, "Green"); }
+static void p_blue(void)  { solid(COLOR_BLUE, "Blue"); }
+static void p_white(void) { solid(COLOR_WHITE, "White"); }
+static void p_black(void) { solid(COLOR_BLACK, "Black"); }
 
 static void p_gradient(void)
 {
-    // 4 franjas: rojo, verde, azul y gris, de oscuro a claro
+    // Dark-to-light red, green, blue, and gray bands.
     for (int x = 0; x < DISPLAY_W; x++) {
         const int v = x * 255 / (DISPLAY_W - 1);
         display_rect(x, 0, 1, 60, RGB565(v, 0, 0));
@@ -29,7 +29,7 @@ static void p_gradient(void)
         display_rect(x, 120, 1, 60, RGB565(0, 0, v));
         display_rect(x, 180, 1, 60, RGB565(v, v, v));
     }
-    display_text(4, 4, "Degradados", 1, COLOR_WHITE);
+    display_text(4, 4, "Gradients", 1, COLOR_WHITE);
 }
 
 static void p_grid(void)
@@ -39,20 +39,20 @@ static void p_grid(void)
         display_rect(i, 0, 1, DISPLAY_H, COLOR_GRAY);
         display_rect(0, i, DISPLAY_W, 1, COLOR_GRAY);
     }
-    display_frame(0, 0, DISPLAY_W, DISPLAY_H, COLOR_RED);  // el borde debe verse entero
+    display_frame(0, 0, DISPLAY_W, DISPLAY_H, COLOR_RED);  // The full border should be visible.
     display_line(0, 0, DISPLAY_W - 1, DISPLAY_H - 1, COLOR_YELLOW);
     display_line(DISPLAY_W - 1, 0, 0, DISPLAY_H - 1, COLOR_YELLOW);
     display_circle(120, 120, 60, COLOR_CYAN, false);
-    display_text(4, 4, "Rejilla 20 px", 1, COLOR_WHITE);
+    display_text(4, 4, "20 px grid", 1, COLOR_WHITE);
 }
 
 static void p_text(void)
 {
     display_clear(COLOR_BLACK);
-    display_text(4, 4, "Escala 1: ABCabc 0123 ¡¿ñáéíóú°?!", 1, COLOR_WHITE);
-    display_text(4, 20, "Escala 2: Hola", 2, COLOR_YELLOW);
-    display_text(4, 42, "Esc. 3", 3, COLOR_GREEN);
-    display_text(4, 70, "Esc 4", 4, COLOR_CYAN);
+    display_text(4, 4, "1x: ABCabc 0123 ¡¿ñáéíóú°?!", 1, COLOR_WHITE);
+    display_text(4, 20, "2x: Hello", 2, COLOR_YELLOW);
+    display_text(4, 42, "3x: ABC", 3, COLOR_GREEN);
+    display_text(4, 70, "4x: ABC", 4, COLOR_CYAN);
     display_text(4, 110, " !\"#$%&'()*+,-./0123456789:;<=>?\n@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\n`abcdefghijklmnopqrstuvwxyz{|}~",
                  1, COLOR_WHITE);
 }
@@ -67,8 +67,8 @@ void app_screen(void)
 
     for (;;) {
         patterns[idx]();
-        display_footer("+ siguiente  PWR brillo  BOOT volver");
-        display_printf(DISPLAY_W - 60, 4, 1, idx == 3 ? COLOR_BLACK : COLOR_WHITE, "Brillo %d%%", levels[level]);
+        display_footer("+ next   PWR brightness   BOOT back");
+        display_printf(DISPLAY_W - 60, 4, 1, idx == 3 ? COLOR_BLACK : COLOR_WHITE, "BL %d%%", levels[level]);
         display_flush();
 
         button_event_t e;

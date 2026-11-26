@@ -1,9 +1,9 @@
 /*
- * app_sound.c — Prueba del altavoz: códec ES8311 + amplificador NS4150B.
+ * Speaker test for the ES8311 codec and NS4150B amplifier.
  *
- * Cadena de audio: ESP32 --I2S (muestras)--> ES8311 --> amplificador --> altavoz
- * El ES8311 se configura por I2C; el componente esp_codec_dev lo hace por nosotros.
- * Las notas se generan como ondas senoidales en tiempo real.
+ * The ESP32 sends samples over I2S to the ES8311, then to the amplifier and
+ * speaker. esp_codec_dev configures the codec over I2C. Notes are synthesized
+ * as sine waves in real time.
  */
 #include "apps.h"
 #include "board.h"
@@ -44,7 +44,7 @@ static bool speaker_open(speaker_t *s)
 {
     *s = (speaker_t){0};
 
-    // 1. Canal I2S de salida (el ESP32 genera los relojes, incluido MCLK)
+    // 1. Set up I2S output with the ESP32 providing clocks, including MCLK.
     i2s_chan_config_t chan_cfg = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
     chan_cfg.auto_clear = true;
     if (i2s_new_channel(&chan_cfg, &s->tx, NULL) != ESP_OK) goto fail;
@@ -59,7 +59,7 @@ static bool speaker_open(speaker_t *s)
     if (i2s_channel_init_std_mode(s->tx, &std_cfg) != ESP_OK) goto fail;
     if (i2s_channel_enable(s->tx) != ESP_OK) goto fail;
 
-    // 2. Interfaces que usa esp_codec_dev: datos (I2S), control (I2C) y GPIO (amplificador)
+    // 2. Set up data (I2S), control (I2C), and amplifier GPIO for esp_codec_dev.
     audio_codec_i2s_cfg_t i2s_cfg = {.port = I2S_NUM_0, .tx_handle = s->tx};
     s->data_if = audio_codec_new_i2s_data(&i2s_cfg);
     audio_codec_i2c_cfg_t i2c_cfg = {
@@ -71,7 +71,7 @@ static bool speaker_open(speaker_t *s)
     s->gpio_if = audio_codec_new_gpio();
     if (!s->data_if || !s->ctrl_if || !s->gpio_if) goto fail;
 
-    // 3. Códec ES8311 en modo DAC (reproducción)
+    // 3. Configure the ES8311 for DAC playback.
     es8311_codec_cfg_t es_cfg = {
         .ctrl_if = s->ctrl_if,
         .gpio_if = s->gpio_if,
@@ -96,12 +96,12 @@ static bool speaker_open(speaker_t *s)
     return true;
 
 fail:
-    ESP_LOGE(TAG, "No se pudo iniciar el audio");
+    ESP_LOGE(TAG, "Failed to start audio");
     speaker_close(s);
     return false;
 }
 
-/** Reproduce una nota (frecuencia en Hz, 0 = silencio). Devuelve false si se pulsa BOOT. */
+/** Play a note (0 Hz is silence). Return false if BOOT is pressed. */
 static bool play_tone(speaker_t *s, float freq, int ms)
 {
     static int16_t buf[256];
@@ -110,7 +110,7 @@ static bool play_tone(speaker_t *s, float freq, int ms)
     for (int done = 0; done < total;) {
         const int n = total - done < 256 ? total - done : 256;
         for (int i = 0; i < n; i++, done++) {
-            // Envolvente corta al principio y al final para evitar "clics"
+            // Fade each note in and out to avoid clicks.
             const int edge = SAMPLE_RATE / 200;
             float env = 1.0f;
             if (done < edge) env = (float)done / edge;
@@ -128,15 +128,15 @@ static bool play_tone(speaker_t *s, float freq, int ms)
 static void draw(int volume, const char *note, const char *status)
 {
     display_clear(COLOR_BLACK);
-    display_header("Sonido");
-    display_text_center(40, "Altavoz (ES8311)", 1, COLOR_GRAY);
+    display_header("Sound");
+    display_text_center(40, "Speaker (ES8311)", 1, COLOR_GRAY);
     display_text_center(70, note, 4, COLOR_YELLOW);
-    display_text(20, 130, "Volumen", 1, COLOR_CYAN);
+    display_text(20, 130, "Volume", 1, COLOR_CYAN);
     display_frame(20, 142, 200, 16, COLOR_GRAY);
     display_rect(22, 144, 196 * volume / 100, 12, COLOR_GREEN);
     display_printf(20, 164, 1, COLOR_WHITE, "%d %%", volume);
     display_text_center(190, status, 1, COLOR_ORANGE);
-    display_footer("PWR tocar   + volumen   BOOT volver");
+    display_footer("PWR play   + volume   BOOT back");
     display_flush();
 }
 
@@ -144,7 +144,7 @@ void app_sound(void)
 {
     speaker_t spk;
     if (!speaker_open(&spk)) {
-        draw(0, ":(", "Error iniciando el audio");
+        draw(0, ":(", "Could not start audio");
         button_event_t e;
         while (!(buttons_get_event(&e, portMAX_DELAY) && e.type == BTN_EVENT_CLICK && e.button == BTN_BOOT)) {
         }
@@ -155,14 +155,14 @@ void app_sound(void)
     int vol_idx = 1;
     esp_codec_dev_set_out_vol(spk.dev, volumes[vol_idx]);
 
-    // Escala de Do mayor y acorde final
+    // C major scale and closing notes.
     static const struct { const char *name; float freq; int ms; } melody[] = {
-        {"Do", 261.63f, 250}, {"Re", 293.66f, 250}, {"Mi", 329.63f, 250}, {"Fa", 349.23f, 250},
-        {"Sol", 392.00f, 250}, {"La", 440.00f, 250}, {"Si", 493.88f, 250}, {"Do", 523.25f, 400},
-        {"Sol", 392.00f, 180}, {"Mi", 329.63f, 180}, {"Do", 261.63f, 500},
+        {"C", 261.63f, 250}, {"D", 293.66f, 250}, {"E", 329.63f, 250}, {"F", 349.23f, 250},
+        {"G", 392.00f, 250}, {"A", 440.00f, 250}, {"B", 493.88f, 250}, {"C", 523.25f, 400},
+        {"G", 392.00f, 180}, {"E", 329.63f, 180}, {"C", 261.63f, 500},
     };
 
-    draw(volumes[vol_idx], "-", "Pulsa PWR para oír una escala");
+    draw(volumes[vol_idx], "-", "Press PWR to play a scale");
     for (;;) {
         button_event_t e;
         buttons_get_event(&e, portMAX_DELAY);
@@ -171,19 +171,19 @@ void app_sound(void)
         if (e.button == BTN_PLUS) {
             vol_idx = (vol_idx + 1) % 4;
             esp_codec_dev_set_out_vol(spk.dev, volumes[vol_idx]);
-            draw(volumes[vol_idx], "-", "Volumen cambiado");
-            play_tone(&spk, 880.0f, 120);   // pitido de confirmación
+            draw(volumes[vol_idx], "-", "Volume changed");
+            play_tone(&spk, 880.0f, 120);   // Confirmation beep.
             play_tone(&spk, 0, 50);
         }
         if (e.button == BTN_PWR) {
             bool aborted = false;
             for (int i = 0; i < (int)(sizeof(melody) / sizeof(melody[0])) && !aborted; i++) {
-                draw(volumes[vol_idx], melody[i].name, "Tocando... (BOOT para parar)");
+                draw(volumes[vol_idx], melody[i].name, "Playing... (BOOT to stop)");
                 aborted = !play_tone(&spk, melody[i].freq, melody[i].ms) || !play_tone(&spk, 0, 30);
             }
-            play_tone(&spk, 0, 100);  // vaciar con silencio
-            // Si se paró con BOOT, su CLICK llegará al soltarlo y saldremos del bucle.
-            draw(volumes[vol_idx], "-", aborted ? "Parado" : "¿Se ha oído bien?");
+            play_tone(&spk, 0, 100);  // Flush with silence.
+            // After a BOOT abort, the release posts a CLICK and exits the loop.
+            draw(volumes[vol_idx], "-", aborted ? "Stopped" : "Playback complete");
         }
     }
     speaker_close(&spk);

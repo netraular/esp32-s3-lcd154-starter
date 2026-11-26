@@ -8,7 +8,7 @@
 static const char *TAG = "board";
 static i2c_master_bus_handle_t s_i2c_bus;
 
-/** Fija un pin de salida a un nivel y lo mantiene así también durante el deep sleep. */
+/** Set an output level and hold it through deep sleep. */
 static void hold_output(gpio_num_t pin, int level)
 {
     gpio_hold_dis(pin);
@@ -19,36 +19,35 @@ static void hold_output(gpio_num_t pin, int level)
 
 void board_power_hold(void)
 {
-    // Con batería, al pulsar PWR la placa arranca; el firmware debe poner
-    // BAT_EN a 1 enseguida o se apagará al soltar el botón.
+    // On battery power, assert BAT_EN before the user releases PWR.
     gpio_set_level(PIN_BAT_EN, 1);
     gpio_set_direction(PIN_BAT_EN, GPIO_MODE_OUTPUT);
 
-    // Si venimos de board_power_off(), algunos pines siguen "congelados": soltarlos.
+    // Release GPIO holds left in place by board_power_off().
     gpio_deep_sleep_hold_dis();
     gpio_hold_dis(PIN_BAT_EN);
     gpio_hold_dis(PIN_LCD_BL);
     gpio_hold_dis(PIN_AUDIO_PA);
     if (esp_sleep_get_wakeup_cause() != ESP_SLEEP_WAKEUP_UNDEFINED) {
-        rtc_gpio_deinit(PIN_BTN_PWR);   // devolver PWR a GPIO normal
-        ESP_LOGI(TAG, "Despertado con PWR");
+        rtc_gpio_deinit(PIN_BTN_PWR);   // Return PWR to normal GPIO mode.
+        ESP_LOGI(TAG, "Woke from PWR");
     }
 }
 
 void board_power_off(void)
 {
-    // 1. Intentar cortar la batería
-    ESP_LOGI(TAG, "Apagando: BAT_EN = 0");
+    // 1. Try to cut battery power.
+    ESP_LOGI(TAG, "Powering off: BAT_EN = 0");
     hold_output(PIN_BAT_EN, 0);
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    // 2. Seguimos vivos: deep sleep con despertar por PWR
-    ESP_LOGI(TAG, "Sigue alimentada: deep sleep hasta pulsar PWR");
-    while (gpio_get_level(PIN_BTN_PWR) == 0) vTaskDelay(pdMS_TO_TICKS(10));  // esperar a soltar PWR
+    // 2. If still powered, use deep sleep with PWR as the wake source.
+    ESP_LOGI(TAG, "Still powered: entering deep sleep until PWR is pressed");
+    while (gpio_get_level(PIN_BTN_PWR) == 0) vTaskDelay(pdMS_TO_TICKS(10));  // Wait for PWR release.
     vTaskDelay(pdMS_TO_TICKS(50));
 
-    hold_output(PIN_LCD_BL, 0);     // retroiluminación apagada
-    hold_output(PIN_AUDIO_PA, 0);   // amplificador apagado
+    hold_output(PIN_LCD_BL, 0);     // Backlight off.
+    hold_output(PIN_AUDIO_PA, 0);   // Amplifier off.
     gpio_deep_sleep_hold_en();
 
     rtc_gpio_pullup_en(PIN_BTN_PWR);

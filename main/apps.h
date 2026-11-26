@@ -1,12 +1,10 @@
 /*
- * apps.h — Cada "app" es una función que toma el control de la pantalla y
- * los botones, y vuelve (return) cuando el usuario quiere regresar al menú.
+ * An app is a function that owns the display and buttons until it returns
+ * to the main menu.
  *
- * Para añadir tu propia app:
- *   1. Copia apps/app_template.c a apps/app_loquesea.c y renombra la función.
- *   2. Declárala aquí abajo.
- *   3. Añade el .c a main/CMakeLists.txt.
- *   4. Añade una entrada en la tabla MENU[] de main.c.
+ * To add an app, copy apps/app_template.c and rename its function. Declare
+ * it here, add the source to main/CMakeLists.txt, and add an entry to MENU
+ * in main.c.
  */
 #pragma once
 

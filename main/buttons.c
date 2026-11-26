@@ -6,15 +6,15 @@
 #include "freertos/task.h"
 
 #define POLL_MS      10
-#define DEBOUNCE_CNT 3      // 3 lecturas iguales seguidas (30 ms) para aceptar un cambio
+#define DEBOUNCE_CNT 3      // Accept a change after three matching samples (30 ms).
 
 typedef struct {
     gpio_num_t gpio;
-    bool down;              // estado estable
-    uint8_t same_count;     // lecturas consecutivas distintas del estado estable
+    bool down;              // Debounced state.
+    uint8_t same_count;     // Consecutive samples that differ from the stable state.
     int64_t down_since_us;
     bool long_sent;
-    bool ignore_until_up;   // estaba pulsado al arrancar (p. ej. PWR para encender)
+    bool ignore_until_up;   // Already held at boot (for example, PWR).
 } button_state_t;
 
 static button_state_t s_btn[BTN_COUNT] = {
@@ -27,7 +27,7 @@ static QueueHandle_t s_queue;
 static void emit(button_id_t b, button_event_type_t t)
 {
     const button_event_t e = {.button = b, .type = t};
-    xQueueSend(s_queue, &e, 0); // si la cola está llena se pierde el evento
+    xQueueSend(s_queue, &e, 0); // Drop the event if the queue is full.
 }
 
 static void buttons_task(void *arg)
@@ -36,7 +36,7 @@ static void buttons_task(void *arg)
         const int64_t now = esp_timer_get_time();
         for (int i = 0; i < BTN_COUNT; i++) {
             button_state_t *b = &s_btn[i];
-            const bool raw_down = gpio_get_level(b->gpio) == 0; // activo a nivel bajo
+            const bool raw_down = gpio_get_level(b->gpio) == 0; // Active low.
 
             if (raw_down != b->down) {
                 if (++b->same_count >= DEBOUNCE_CNT) {
@@ -78,7 +78,7 @@ void buttons_init(void)
     };
     ESP_ERROR_CHECK(gpio_config(&io));
 
-    // Los botones que ya están pulsados al arrancar se ignoran hasta soltarlos.
+    // Ignore buttons already held at boot until they are released.
     for (int i = 0; i < BTN_COUNT; i++) {
         s_btn[i].down = gpio_get_level(s_btn[i].gpio) == 0;
         s_btn[i].ignore_until_up = s_btn[i].down;

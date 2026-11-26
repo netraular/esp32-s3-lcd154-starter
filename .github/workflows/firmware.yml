@@ -1,8 +1,6 @@
-# Compila el firmware y publica el instalador web en GitHub Pages.
-# - En cada push a main: compila y despliega la página.
-# - En pull requests: solo compila.
-# Requisito (una vez): Settings -> Pages -> Source = "GitHub Actions".
-name: Firmware y página de instalación
+# Pushes to main build the firmware and deploy the installer; pull requests only build.
+# In Settings -> Pages, set Source to "GitHub Actions".
+name: Firmware and web installer
 
 on:
   push:
@@ -24,14 +22,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Compilar
+      - name: Build firmware
         shell: bash
         run: |
           . "$IDF_PATH/export.sh"
           idf.py build
-          idf.py merge-bin   # bootloader + particiones + app en un solo .bin (offset 0)
+          idf.py merge-bin   # Bootloader, partition table, and app at offset 0.
 
-      - name: Preparar la web
+      - name: Package the web installer
         shell: bash
         run: |
           VERSION="$(date -u +%Y.%m.%d)-${GITHUB_SHA::7}"
@@ -42,7 +40,7 @@ jobs:
           sed -i -e "s/__VERSION__/${VERSION}/g" -e "s#__REPO__#${GITHUB_REPOSITORY}#g" site/index.html
           ls -lR site
 
-      - name: Guardar binarios
+      - name: Upload firmware binaries
         uses: actions/upload-artifact@v4
         with:
           name: firmware
@@ -53,7 +51,7 @@ jobs:
             build/*.bin
             build/flash_args
 
-      - name: Subir la web
+      - name: Upload the Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:

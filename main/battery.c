@@ -13,8 +13,8 @@
 static const char *TAG = "battery";
 
 #define SAMPLES_PER_READ   64
-#define FULL_MIN_MV        4100   // tensión mínima para dar la carga por terminada
-#define UNPLUG_DROP_MV     40     // caída que indica que se desconectó el cargador
+#define FULL_MIN_MV        4100   // Minimum voltage for a full-charge estimate.
+#define UNPLUG_DROP_MV     40     // Drop that indicates charger removal.
 
 static portMUX_TYPE s_lock = portMUX_INITIALIZER_UNLOCKED;
 static battery_status_t s_status;
@@ -25,7 +25,7 @@ static adc_oneshot_unit_handle_t s_adc;
 static adc_cali_handle_t s_cali;
 static bool s_calibrated;
 
-/** Porcentaje aproximado a partir de la tensión (curva típica Li-ion). */
+/** Estimate the percentage from a typical Li-ion voltage curve. */
 static int percent_from_mv(int mv)
 {
     static const int table[][2] = {
@@ -41,7 +41,7 @@ static int percent_from_mv(int mv)
     return 0;
 }
 
-/** Media de muchas lecturas del ADC, en mV en el pin. */
+/** Average multiple ADC readings, in millivolts at the pin. */
 static int read_adc_mv(void)
 {
     int sum = 0;
@@ -59,9 +59,9 @@ static int read_adc_mv(void)
 
 static void battery_task(void *arg)
 {
-    float filtered = 0;          // tensión suavizada
+    float filtered = 0;          // Smoothed voltage.
     bool have_filtered = false;
-    int shown_percent = -1;      // con batería solo puede bajar
+    int shown_percent = -1;      // Can only decrease while discharging.
     bool was_charging = false;
     bool full = false;
     int full_mv = 0;
@@ -70,11 +70,11 @@ static void battery_task(void *arg)
 
     for (;;) {
         const int adc_mv = read_adc_mv();
-        const int bat_mv = adc_mv * 3;               // divisor 200k/100k
+        const int bat_mv = adc_mv * 3;               // 200k/100k divider.
         const bool charging = gpio_get_level(PIN_CHARGING) == 0;
         const bool usb_host = usb_serial_jtag_is_connected();
 
-        // --- ¿Carga completa? ---
+        // Estimate whether charging has finished.
         if (charging) {
             full = false;
         } else if (!full) {
@@ -84,7 +84,7 @@ static void battery_task(void *arg)
                 full_mv = v;
             }
         } else if (!usb_host) {
-            // Con cargador de pared: si la tensión cae, es que lo han desconectado.
+            // A voltage drop suggests the wall charger was disconnected.
             if ((int)filtered > full_mv) full_mv = (int)filtered;
             if ((int)filtered < full_mv - UNPLUG_DROP_MV) full = false;
         }
@@ -92,17 +92,17 @@ static void battery_task(void *arg)
 
         const battery_state_t state = charging ? BATTERY_CHARGING : full ? BATTERY_FULL : BATTERY_DISCHARGING;
 
-        // --- Suavizado: al cambiar de estado se empieza de nuevo ---
+        // Restart voltage smoothing when the charge state changes.
         if (!have_filtered || state != last_state) {
             filtered = bat_mv;
             have_filtered = true;
             shown_percent = -1;
         } else {
-            filtered += (bat_mv - filtered) * 0.1f;  // media móvil exponencial (~10 s)
+            filtered += (bat_mv - filtered) * 0.1f;  // Exponential moving average (~10 s).
         }
         last_state = state;
 
-        // --- Porcentaje ---
+        // Estimate charge percentage.
         int percent;
         if (state == BATTERY_CHARGING) {
             percent = -1;
@@ -110,7 +110,7 @@ static void battery_task(void *arg)
             percent = 100;
         } else {
             const int p = percent_from_mv((int)filtered);
-            // Sin cargador la batería no gana carga: si "sube" es ruido, se ignora.
+            // Ignore increases in the estimate while discharging.
             if (shown_percent < 0 || p < shown_percent) shown_percent = p;
             percent = shown_percent;
         }
@@ -142,12 +142,12 @@ void battery_init(void)
     const adc_oneshot_chan_cfg_t chan_cfg = {.atten = ADC_ATTEN_DB_12, .bitwidth = ADC_BITWIDTH_DEFAULT};
     ESP_ERROR_CHECK(adc_oneshot_config_channel(s_adc, ADC_CHANNEL_0, &chan_cfg));   // GPIO1
 
-    // Calibración de fábrica del ADC (convierte la lectura cruda en milivoltios)
+    // Factory ADC calibration converts raw readings to millivolts.
     const adc_cali_curve_fitting_config_t cali_cfg = {
         .unit_id = ADC_UNIT_1, .chan = ADC_CHANNEL_0, .atten = ADC_ATTEN_DB_12, .bitwidth = ADC_BITWIDTH_DEFAULT,
     };
     s_calibrated = adc_cali_create_scheme_curve_fitting(&cali_cfg, &s_cali) == ESP_OK;
-    if (!s_calibrated) ESP_LOGW(TAG, "ADC sin calibración de fábrica");
+    if (!s_calibrated) ESP_LOGW(TAG, "Factory ADC calibration unavailable");
 
     const gpio_config_t chg = {
         .pin_bit_mask = 1ULL << PIN_CHARGING, .mode = GPIO_MODE_INPUT, .pull_up_en = GPIO_PULLUP_ENABLE,

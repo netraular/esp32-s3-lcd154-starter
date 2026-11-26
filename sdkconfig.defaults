@@ -1,25 +1,25 @@
-# Valores por defecto para la placa Waveshare ESP32-S3-LCD-1.54 (N16R8).
-# Se aplican la primera vez que se genera "sdkconfig". Si cambias algo aquí,
-# borra "sdkconfig" (o ejecuta "idf.py fullclean") para que se vuelva a leer.
+# Defaults for the Waveshare ESP32-S3-LCD-1.54 (N16R8).
+# Existing sdkconfig values take precedence. To regenerate from these defaults,
+# move the existing sdkconfig aside and run idf.py reconfigure.
 CONFIG_IDF_TARGET="esp32s3"
 
-# Flash de 16 MB
+# 16 MB flash
 CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
 CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
 CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y
 
-# PSRAM octal de 8 MB
+# 8 MB octal PSRAM
 CONFIG_SPIRAM=y
 CONFIG_SPIRAM_MODE_OCT=y
 CONFIG_SPIRAM_SPEED_80M=y
 CONFIG_SPIRAM_USE_MALLOC=y
 
-# CPU a 240 MHz
+# 240 MHz CPU
 CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
 
-# FreeRTOS a 1000 Hz: vTaskDelay(pdMS_TO_TICKS(1)) = 1 ms
+# 1 kHz FreeRTOS tick rate
 CONFIG_FREERTOS_HZ=1000
 
-# Nombres largos de fichero en la microSD
+# Long filenames on microSD
 CONFIG_FATFS_LFN_HEAP=y
 CONFIG_FATFS_MAX_LFN=255
