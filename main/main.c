@@ -1,5 +1,5 @@
 /*
- * basic-esp32 — Firmware de iniciación para Waveshare ESP32-S3-LCD-1.54
+ * esp32-s3-lcd154-starter — Firmware de iniciación para Waveshare ESP32-S3-LCD-1.54
  *
  * Punto de entrada: app_main() lo llama ESP-IDF tras arrancar FreeRTOS.
  */
@@ -54,7 +54,7 @@ static void splash(void)
     display_clear(COLOR_BLACK);
     display_circle(120, 80, 40, COLOR_ACCENT, true);
     display_text_center(66, "ESP32", 3, COLOR_WHITE);
-    display_text_center(140, "basic-esp32", 2, COLOR_YELLOW);
+    display_text_center(140, "Starter kit", 2, COLOR_YELLOW);
     display_text_center(166, "Waveshare ESP32-S3-LCD-1.54", 1, COLOR_GRAY);
     display_text_center(200, "¡Bienvenido! Pulsa un botón", 1, COLOR_WHITE);
     display_flush();
@@ -70,11 +70,11 @@ static void splash(void)
 void app_main(void)
 {
     board_power_hold();   // ¡lo primero! si no, con batería se apaga al soltar PWR
-    ESP_LOGI(TAG, "Arrancando basic-esp32");
+    ESP_LOGI(TAG, "Arrancando esp32-s3-lcd154-starter");
 
     display_init();
     buttons_init();
 
     splash();
-    menu_run("basic-esp32", MENU, sizeof(MENU) / sizeof(MENU[0]));
+    menu_run("Starter kit", MENU, sizeof(MENU) / sizeof(MENU[0]));
 }

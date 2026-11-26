@@ -1,4 +1,4 @@
-# basic-esp32
+# esp32-s3-lcd154-starter
 
 Firmware de iniciación para la placa **Waveshare ESP32-S3-LCD-1.54**. Sirve para
 probar todo el hardware de la placa y como punto de partida para tus programas.
@@ -6,6 +6,13 @@ probar todo el hardware de la placa y como punto de partida para tus programas.
 Está escrito en C con **ESP-IDF**, el entorno oficial de Espressif. No usa
 librerías gráficas: la pantalla se maneja con un lienzo en memoria y una fuente
 5x7 muy simple. Así todo el código se puede leer y entender en poco tiempo.
+
+## Instalar sin programar nada
+
+Abre **https://netraular.github.io/esp32-s3-lcd154-starter/** con Chrome, Edge u
+Opera en un ordenador, conecta la placa por USB-C y pulsa *Conectar e instalar*.
+La página se genera automáticamente con GitHub Actions en cada cambio de `main`
+(ver `.github/workflows/firmware.yml` y la carpeta `web/`).
 
 ## Controles
 
@@ -24,7 +31,7 @@ Con batería, mantén `PWR` pulsado para encender la placa.
 | Opción        | Qué hace                                                                  |
 |---------------|---------------------------------------------------------------------------|
 | Mi app        | Plantilla con un contador y una pelota. **Empieza a programar aquí.**     |
-| Ayuda (QR)    | Códigos QR con enlaces a la documentación, los ejemplos, el vídeo y ESP-IDF |
+| Ayuda (QR)    | Códigos QR: instalador web, este código, documentación, ejemplos, vídeo y ESP-IDF |
 | Botones       | Estado de cada botón en tiempo real y contador de pulsaciones cortas/largas |
 | Pantalla      | Colores puros, degradados, rejilla, texto y brillo                         |
 | Info placa    | Chip, memoria flash/PSRAM, RAM libre, MAC y versión de ESP-IDF            |
@@ -84,6 +91,8 @@ docker run --rm -v $PWD:/project -w /project espressif/idf:v5.5.1 idf.py build
 
 ```
 CMakeLists.txt          proyecto ESP-IDF
+.github/workflows/      compila y publica el instalador web en GitHub Pages
+web/                    página del instalador (ESP Web Tools) y su manifest
 sdkconfig.defaults      configuración de la placa (flash 16 MB, PSRAM 8 MB, 240 MHz)
 main/
   main.c                arranque y tabla del menú

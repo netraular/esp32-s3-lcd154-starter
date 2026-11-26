@@ -18,7 +18,7 @@
 #include "sdmmc_cmd.h"
 
 #define MOUNT_POINT "/sdcard"
-#define TEST_FILE   MOUNT_POINT "/basic_esp32_test.txt"
+#define TEST_FILE   MOUNT_POINT "/starter_test.txt"
 
 static void wait_back(void)
 {
@@ -114,7 +114,7 @@ void app_sdcard(void)
                 }
             }
             snprintf(status, sizeof(status), "%s", strcmp(written, readback) == 0 ?
-                     "Escritura OK: basic_esp32_test.txt" : "Error de escritura/lectura");
+                     "Escritura OK: starter_test.txt" : "Error de escritura/lectura");
         }
     }
     esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);

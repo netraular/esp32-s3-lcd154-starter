@@ -16,6 +16,10 @@ typedef struct {
 } help_link_t;
 
 static const help_link_t LINKS[] = {
+    {"Instalador", "Reinstalar este firmware (Chrome)",
+     "https://netraular.github.io/esp32-s3-lcd154-starter/"},
+    {"Código",    "Código fuente de este firmware",
+     "https://github.com/netraular/esp32-s3-lcd154-starter"},
     {"Producto",  "Página de la placa en Waveshare",
      "https://www.waveshare.com/esp32-s3-lcd-1.54.htm"},
     {"Wiki",      "Documentación y tutoriales",
