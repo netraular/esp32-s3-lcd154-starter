@@ -4,6 +4,7 @@
  * Punto de entrada: app_main() lo llama ESP-IDF tras arrancar FreeRTOS.
  */
 #include "apps.h"
+#include "battery.h"
 #include "board.h"
 #include "buttons.h"
 #include "display.h"
@@ -68,6 +69,7 @@ void app_main(void)
 
     display_init();
     buttons_init();
+    battery_init();       // mide la batería en segundo plano
 
     splash();
     menu_run("Starter kit", MENU, sizeof(MENU) / sizeof(MENU[0]));

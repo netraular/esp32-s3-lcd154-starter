@@ -36,7 +36,7 @@ Con batería, mantén `PWR` pulsado para encender la placa.
 | Botones       | Estado de cada botón en tiempo real y contador de pulsaciones cortas/largas |
 | Pantalla      | Colores puros, degradados, rejilla, texto y brillo                         |
 | Info placa    | Chip, memoria flash/PSRAM, RAM libre, MAC y versión de ESP-IDF            |
-| Batería       | Tensión, porcentaje aproximado, estado de carga y gráfica                 |
+| Batería       | Porcentaje estable, "Cargando" / "Carga completa", tensión y gráfica de 20 min |
 | Movimiento    | Acelerómetro y giroscopio QMI8658 con nivel de burbuja                     |
 | Sonido        | Toca una escala por el altavoz y cambia el volumen                        |
 | Tarjeta SD    | Monta la microSD, enseña su tamaño y los ficheros, y prueba a escribir    |
@@ -101,6 +101,7 @@ main/
   display.h / .c        pantalla: lienzo, rectángulos, líneas, círculos y texto
   buttons.h / .c        botones con antirrebote y pulsación larga
   menu.h / .c           menú desplazable
+  battery.h / .c        batería medida en segundo plano (tarea de FreeRTOS)
   apps.h                lista de apps
   apps/app_*.c          una app por fichero
 ```

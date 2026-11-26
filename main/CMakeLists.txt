@@ -5,6 +5,7 @@ idf_component_register(
         "display.c"
         "buttons.c"
         "menu.c"
+        "battery.c"
         "apps/app_template.c"
         "apps/app_info.c"
         "apps/app_buttons.c"
@@ -20,4 +21,5 @@ idf_component_register(
         esp_driver_gpio esp_driver_spi esp_driver_i2c esp_driver_i2s
         esp_driver_ledc esp_driver_sdmmc esp_lcd esp_adc fatfs
         esp_timer esp_psram spi_flash esp_hw_support esp_system
+        esp_driver_usb_serial_jtag
 )
